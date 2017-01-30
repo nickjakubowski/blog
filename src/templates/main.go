@@ -13,7 +13,10 @@ func main() {
 
 	data := struct {
 		Name string
-	}{"John Smith"}
+		Dog string
+		Version int
+		//Friends []string
+	}{"John Smith", "Rufus", 5}
 
 	err = t.Execute(os.Stdout, data)
 	if err != nil {
