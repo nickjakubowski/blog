@@ -2,14 +2,30 @@ package main
 
 import (
     "fmt"
+    "html/template"
     "net/http"
 
     "github.com/gorilla/mux"
 )
 
+var homeTemplate *template.Template
+
+func main() {
+	var err error
+	homeTemplate, err = template.ParseFiles("views/home.gohtml")
+	if err != nil {
+		panic(err)
+	}
+	r := mux.NewRouter()
+	r.HandleFunc("/", home)
+	r.HandleFunc("/contact", contact)
+	r.NotFoundHandler = http.HandlerFunc(notFound)
+	http.ListenAndServe(":3000", r)
+}
+
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprint(w, "<h2>Welcome to the future site of another blog</h2>")
+	homeTemplate.Execute(w, nil)	
 }
 
 func contact(w http.ResponseWriter, r *http.Request) {
@@ -24,10 +40,3 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "<h1>404</h1><h5>Sorry, there is nothing here....except for this text, but nothing besides that</h5>")
 }
 
-func main() {
-	r := mux.NewRouter()
-	r.HandleFunc("/", home)
-	r.HandleFunc("/contact", contact)
-	r.NotFoundHandler = http.HandlerFunc(notFound)
-	http.ListenAndServe(":3000", r)
-}
