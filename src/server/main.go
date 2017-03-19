@@ -1,7 +1,6 @@
 package main
 
 import (
-    "fmt"
     "html/template"
     "net/http"
 
@@ -9,17 +8,26 @@ import (
 )
 
 var homeTemplate *template.Template
+var contactTemplate *template.Template
 
 func main() {
 	var err error
-	homeTemplate, err = template.ParseFiles("views/home.gohtml")
+	homeTemplate, err = template.ParseFiles(
+		"views/home.gohtml",
+		"views/layouts/footer.gohtml")
 	if err != nil {
 		panic(err)
 	}
+	contactTemplate, err = template.ParseFiles(
+		"views/contact.gohtml",
+		"views/layouts/footer.gohtml")
+	if err != nil {
+		panic(err)
+	}
+	
 	r := mux.NewRouter()
 	r.HandleFunc("/", home)
 	r.HandleFunc("/contact", contact)
-	r.NotFoundHandler = http.HandlerFunc(notFound)
 	http.ListenAndServe(":3000", r)
 }
 
@@ -30,13 +38,8 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 func contact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprint(w, "To get in touch, please send an email "+
-    "to <a href=\"mailto:somewhere@nowhere.com\">"+
-    "thisgoesnowhere@lost.confused</a>.")
+	contactTemplate.Execute(w, nil)
 }
 
-func notFound(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	fmt.Fprint(w, "<h1>404</h1><h5>Sorry, there is nothing here....except for this text, but nothing besides that</h5>")
-}
+
 
